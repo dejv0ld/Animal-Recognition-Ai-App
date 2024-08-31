@@ -9,7 +9,7 @@ const ImageUploader: React.FC = () => {
   const [result, setResult] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setImage(file);
@@ -18,14 +18,15 @@ const ImageUploader: React.FC = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      // Immediately start the recognition process
+      await handleImageUpload(file);
     }
   };
 
-  const handleImageUpload = async () => {
-    if (!image) return;
-
+  const handleImageUpload = async (file: File) => {
     const formData = new FormData();
-    formData.append('file', image);
+    formData.append('file', file);
 
     setLoading(true);
     try {
@@ -51,11 +52,11 @@ const ImageUploader: React.FC = () => {
     alert('Camera functionality would be implemented here');
   };
 
-  const formatResult = (text: string) => {
+  const formatResult = (text: string): React.ReactNode => {
     const lines = text.split('\n');
-    let formattedResult = [];
+    let formattedResult: React.ReactNode[] = [];
     let currentMainSection = '';
-    let interestingFacts = [];
+    let interestingFacts: string[] = [];
 
     const cleanText = (str: string) =>
       str
@@ -174,16 +175,10 @@ const ImageUploader: React.FC = () => {
           </div>
         )}
 
-        {image && (
-          <button
-            onClick={handleImageUpload}
-            className="w-full bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold
-              hover:bg-purple-600 transition duration-300 ease-in-out
-              disabled:opacity-50 disabled:cursor-not-allowed mb-8"
-            disabled={loading}
-          >
-            {loading ? 'Processing...' : 'Recognize Fish'}
-          </button>
+        {loading && (
+          <div className="text-center text-gray-600 mb-4">
+            <p>Processing image...</p>
+          </div>
         )}
 
         {result && (

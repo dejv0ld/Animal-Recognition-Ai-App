@@ -70,7 +70,7 @@ const ImageUploader: React.FC = () => {
 
       if (line.toLowerCase() === 'fish information') {
         formattedResult.push(
-          <h2 key={i} className="text-2xl font-bold mb-4 text-blue-900">
+          <h2 key={i} className="text-2xl font-bold mb-4 text-black">
             {line}
           </h2>
         );
@@ -80,7 +80,7 @@ const ImageUploader: React.FC = () => {
         currentMainSection = line.toLowerCase();
         if (currentMainSection !== 'interesting facts') {
           formattedResult.push(
-            <h3 key={i} className="text-lg font-bold mt-4 mb-2 text-blue-800">
+            <h3 key={i} className="text-lg font-bold mt-4 mb-2 text-gray-300">
               {line}
             </h3>
           );
@@ -91,7 +91,7 @@ const ImageUploader: React.FC = () => {
       ) {
         const [subSection, content] = line.split(':').map(cleanText);
         formattedResult.push(
-          <p key={i} className="mb-2 text-blue-700">
+          <p key={i} className="mb-2 text-gray-300">
             <span className="font-semibold">{subSection}:</span>{' '}
             {content || (lines[i + 1] ? cleanText(lines[i + 1]) : '')}
           </p>
@@ -101,7 +101,7 @@ const ImageUploader: React.FC = () => {
         interestingFacts.push(line);
       } else {
         formattedResult.push(
-          <p key={i} className="mb-2 text-blue-700">
+          <p key={i} className="mb-2 text-gray-300">
             {line}
           </p>
         );
@@ -112,10 +112,10 @@ const ImageUploader: React.FC = () => {
     if (interestingFacts.length > 0) {
       formattedResult.push(
         <div key="interesting-facts" className="mt-4">
-          <h3 className="text-lg font-bold mb-2 text-blue-800">
+          <h3 className="text-lg font-bold mb-2 text-gray-300">
             Interesting Facts
           </h3>
-          <ul className="list-disc pl-5 space-y-2 text-blue-700">
+          <ul className="list-disc pl-5 space-y-2 text-gray-300">
             {interestingFacts.map((fact, index) => (
               <li key={index}>{fact}</li>
             ))}
@@ -130,10 +130,10 @@ const ImageUploader: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-transparent">
       <div className="max-w-2xl w-full">
-        <h1 className="text-4xl font-bold mb-4 text-center text-gray-800">
+        <h1 className="text-4xl font-bold mb-4 text-center text-gray-300">
           Fish Identifier
         </h1>
-        <p className="text-center text-gray-600 mb-8">
+        <p className="text-center text-gray-300 mb-8">
           Discover the species of fish in your photos. Simply upload an image or
           take a photo to get started with our AI-powered fish recognition.
         </p>
@@ -176,17 +176,17 @@ const ImageUploader: React.FC = () => {
         )}
 
         {loading && (
-          <div className="text-center text-gray-600 mb-4">
+          <div className="text-center text-gray-300 mb-4">
             <p>Processing image...</p>
           </div>
         )}
 
         {result && (
-          <div className="bg-gray-100 bg-opacity-80 p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold mb-4 text-left text-blue-900">
+          <div className="bg-gray-700 bg-opacity-10 p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-semibold mb-4 text-left text-gray-300">
               Fish Information:
             </h2>
-            <div className="text-sm text-left space-y-2">
+            <div className="text-sm text-left text-gray-300 space-y-2">
               {formatResult(result)}
             </div>
           </div>

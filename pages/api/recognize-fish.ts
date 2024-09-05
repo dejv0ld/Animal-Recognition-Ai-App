@@ -49,7 +49,7 @@ async function recognizeImageWithGemini(base64Image: string) {
   // Update the model name to 'gemini-1.5-flash'
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-  const prompt = "Identify the fish in this image and provide information about its species, habitat, and interesting facts.";
+  const prompt = "Identify the animal in this image and provide information about its species, habitat, and interesting facts.";
 
   const result = await model.generateContent([
     prompt,

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
 const ImageUploader: React.FC = () => {
@@ -8,20 +8,26 @@ const ImageUploader: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-
-      // Immediately start the recognition process
-      await handleImageUpload(file);
+      processImage(file);
     }
+  };
+
+  const processImage = async (file: File) => {
+    setImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    await handleImageUpload(file);
   };
 
   const handleImageUpload = async (file: File) => {
@@ -48,9 +54,87 @@ const ImageUploader: React.FC = () => {
     }
   };
 
-  const handleTakePhoto = () => {
-    alert('Camera functionality would be implemented here');
+  const handleTakePhoto = async () => {
+    setIsCameraOpen(true);
+    try {
+      const constraints = {
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        // Wait for the video to be loaded
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current?.play();
+        };
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      let errorMessage = 'Unable to access the camera. ';
+      if (error instanceof DOMException) {
+        switch (error.name) {
+          case 'NotAllowedError':
+            errorMessage += 'Permission denied. Please allow camera access and try again.';
+            break;
+          case 'NotFoundError':
+            errorMessage += 'No camera found on this device.';
+            break;
+          case 'NotReadableError':
+            errorMessage += 'Camera is already in use or not accessible.';
+            break;
+          default:
+            errorMessage += `Error: ${error.message}`;
+        }
+      } else {
+        errorMessage += 'An unknown error occurred.';
+      }
+      alert(errorMessage);
+      setIsCameraOpen(false);
+    }
   };
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext('2d');
+      if (context) {
+        canvasRef.current.width = videoRef.current.videoWidth;
+        canvasRef.current.height = videoRef.current.videoHeight;
+        context.drawImage(videoRef.current, 0, 0);
+        canvasRef.current.toBlob((blob) => {
+          if (blob) {
+            const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+            processImage(file);
+          }
+        }, 'image/jpeg');
+      }
+    }
+    closeCamera();
+  };
+
+  const closeCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+      tracks.forEach((track) => track.stop());
+    }
+    setIsCameraOpen(false);
+  };
+
+  useEffect(() => {
+    // Clean up function to stop the camera when component unmounts
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+    };
+  }, []);
 
   const formatResult = (text: string): React.ReactNode => {
     const lines = text.split('\n');
@@ -162,6 +246,26 @@ const ImageUploader: React.FC = () => {
           </button>
         </div>
 
+        {isCameraOpen && (
+          <div className="mb-8 relative">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full rounded-lg"
+            />
+            <button
+              onClick={capturePhoto}
+              className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold
+                hover:bg-red-600 transition duration-300 ease-in-out absolute bottom-4 left-1/2 transform -translate-x-1/2"
+            >
+              Capture Photo
+            </button>
+          </div>
+        )}
+
+        <canvas ref={canvasRef} className="hidden" />
+
         {imagePreview && (
           <div className="mb-8">
             <Image
@@ -169,8 +273,8 @@ const ImageUploader: React.FC = () => {
               alt="Uploaded fish"
               className="max-w-full h-auto rounded-lg shadow-lg"
               layout="responsive"
-              width={500} // or the width you want
-              height={300} // or the height you want
+              width={500}
+              height={300}
             />
           </div>
         )}

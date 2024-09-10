@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @next/next/no-img-element */
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
 
 const ImageUploader: React.FC = () => {
   const [image, setImage] = useState<File | null>(null);
@@ -11,6 +12,21 @@ const ImageUploader: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if the device is mobile
+    const checkMobile = () => {
+      setIsMobile(
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        )
+      );
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -59,9 +75,9 @@ const ImageUploader: React.FC = () => {
     try {
       const constraints = {
         video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          facingMode: isMobile ? 'environment' : 'user',
+          width: { ideal: isMobile ? 1280 : 640 },
+          height: { ideal: isMobile ? 720 : 480 }
         }
       };
 
@@ -69,7 +85,6 @@ const ImageUploader: React.FC = () => {
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        // Wait for the video to be loaded
         videoRef.current.onloadedmetadata = () => {
           videoRef.current?.play();
         };
@@ -80,7 +95,8 @@ const ImageUploader: React.FC = () => {
       if (error instanceof DOMException) {
         switch (error.name) {
           case 'NotAllowedError':
-            errorMessage += 'Permission denied. Please allow camera access and try again.';
+            errorMessage +=
+              'Permission denied. Please allow camera access and try again.';
             break;
           case 'NotFoundError':
             errorMessage += 'No camera found on this device.';
@@ -126,10 +142,8 @@ const ImageUploader: React.FC = () => {
   };
 
   useEffect(() => {
-    // Clean up function to stop the camera when component unmounts
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
         tracks.forEach((track) => track.stop());
       }
@@ -222,7 +236,7 @@ const ImageUploader: React.FC = () => {
           take a photo to get started with our AI-powered fish recognition.
         </p>
 
-        <div className="flex space-x-4 mb-8">
+        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
           <button
             onClick={() => fileInputRef.current?.click()}
             className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold
@@ -236,6 +250,7 @@ const ImageUploader: React.FC = () => {
             onChange={handleImageChange}
             className="hidden"
             accept="image/*"
+            capture="environment"
           />
           <button
             onClick={handleTakePhoto}
@@ -268,13 +283,11 @@ const ImageUploader: React.FC = () => {
 
         {imagePreview && (
           <div className="mb-8">
-            <Image
+            <img
               src={imagePreview}
               alt="Uploaded fish"
               className="max-w-full h-auto rounded-lg shadow-lg"
-              layout="responsive"
-              width={500}
-              height={300}
+              style={{ width: '100%', height: 'auto' }}
             />
           </div>
         )}
@@ -299,5 +312,4 @@ const ImageUploader: React.FC = () => {
     </div>
   );
 };
-
 export default ImageUploader;

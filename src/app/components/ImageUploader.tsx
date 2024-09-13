@@ -14,7 +14,6 @@ const ImageUploader: React.FC = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const captureButtonRef = useRef<HTMLButtonElement>(null); // Ref for the capture button
 
   useEffect(() => {
     // Check if the device is mobile
@@ -31,8 +30,8 @@ const ImageUploader: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (isCameraOpen && captureButtonRef.current) {
-      captureButtonRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (isCameraOpen) {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
   }, [isCameraOpen]);
 
@@ -278,7 +277,6 @@ const ImageUploader: React.FC = () => {
               className="w-full rounded-lg"
             />
             <button
-              ref={captureButtonRef}
               onClick={capturePhoto}
               className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold
                 hover:bg-red-600 transition duration-300 ease-in-out absolute bottom-4 left-1/2 transform -translate-x-1/2"

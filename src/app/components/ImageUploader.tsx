@@ -14,7 +14,6 @@ const ImageUploader: React.FC = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-
   useEffect(() => {
     // Check if the device is mobile
     const checkMobile = () => {
@@ -31,7 +30,12 @@ const ImageUploader: React.FC = () => {
 
   useEffect(() => {
     if (isCameraOpen) {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 1500);
     }
   }, [isCameraOpen]);
 
@@ -257,7 +261,6 @@ const ImageUploader: React.FC = () => {
             onChange={handleImageChange}
             className="hidden"
             accept="image/*"
-            capture="environment"
           />
           <button
             onClick={handleTakePhoto}

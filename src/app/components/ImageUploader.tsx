@@ -30,6 +30,7 @@ const ImageUploader: React.FC = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Scroll to the bottom of the page when camera is opened
   useEffect(() => {
     if (isCameraOpen) {
       setTimeout(() => {

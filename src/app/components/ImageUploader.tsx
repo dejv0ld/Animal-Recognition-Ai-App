@@ -14,6 +14,8 @@ const ImageUploader: React.FC = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  const captureButtonRef = useRef<HTMLButtonElement>(null); // Ref for the capture button
+
   useEffect(() => {
     // Check if the device is mobile
     const checkMobile = () => {
@@ -27,6 +29,12 @@ const ImageUploader: React.FC = () => {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (isCameraOpen && captureButtonRef.current) {
+      captureButtonRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isCameraOpen]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -229,18 +237,18 @@ const ImageUploader: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-transparent">
       <div className="max-w-2xl w-full">
         <h1 className="text-4xl font-bold mb-4 text-center text-gray-300">
-          Fish Identifier
+          Animal Identifier
         </h1>
         <p className="text-center text-gray-300 mb-8">
-          Discover the species of fish in your photos. Simply upload an image or
-          take a photo to get started with our AI-powered fish recognition.
+          Discover the species of animal in your photos. Simply upload an image
+          or take a photo to get started with our AI-powered animal recognition.
         </p>
 
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold
-              hover:bg-blue-600 transition duration-300 ease-in-out"
+            className="flex-1 bg-transparent text-gray-300 px-1 py-2 rounded-xl font-semibold
+              hover:bg-black hover:bg-opacity-30 transition duration-300 ease-in-out border border-gray-300"
           >
             Upload Image
           </button>
@@ -254,8 +262,8 @@ const ImageUploader: React.FC = () => {
           />
           <button
             onClick={handleTakePhoto}
-            className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg font-semibold
-              hover:bg-green-600 transition duration-300 ease-in-out"
+            className="flex-1 bg-transparent text-gray-300 px-1 py-2 rounded-xl font-semibold
+              hover:bg-black hover:bg-opacity-30 transition duration-300 ease-in-out border border-gray-300"
           >
             Take Photo
           </button>
@@ -270,6 +278,7 @@ const ImageUploader: React.FC = () => {
               className="w-full rounded-lg"
             />
             <button
+              ref={captureButtonRef}
               onClick={capturePhoto}
               className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg font-semibold
                 hover:bg-red-600 transition duration-300 ease-in-out absolute bottom-4 left-1/2 transform -translate-x-1/2"

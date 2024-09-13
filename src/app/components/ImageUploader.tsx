@@ -14,6 +14,8 @@ const ImageUploader: React.FC = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  const animalInfoRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     // Check if the device is mobile
     const checkMobile = () => {
@@ -38,6 +40,12 @@ const ImageUploader: React.FC = () => {
       }, 1500);
     }
   }, [isCameraOpen]);
+
+  useEffect(() => {
+    if (result && animalInfoRef.current) {
+      animalInfoRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [result]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -309,9 +317,12 @@ const ImageUploader: React.FC = () => {
         )}
 
         {result && (
-          <div className="bg-gray-700 bg-opacity-10 p-6 rounded-lg shadow-lg">
+          <div
+            ref={animalInfoRef}
+            className="bg-gray-700 bg-opacity-10 p-6 rounded-lg shadow-lg"
+          >
             <h2 className="text-2xl font-semibold mb-4 text-left text-gray-300">
-              Fish Information:
+              Animal Information:
             </h2>
             <div className="text-sm text-left text-gray-300 space-y-2">
               {formatResult(result)}
